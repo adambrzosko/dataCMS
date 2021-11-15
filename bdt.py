@@ -15,10 +15,10 @@ import vector
 import awkward as ak  
 import numba as nb
 
-treeGG_tt = uproot3.open("/vols/cms/fjo18/Masters2021MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
-treeGG_mt = uproot3.open("/vols/cms/fjo18/Masters2021MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_mt_2018.root")["ntuple"]
-treeVBF_tt = uproot3.open("/vols/cms/fjo18/Masters2021MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
-treeVBF_mt = uproot3.open("/vols/cms/fjo18/Masters2021MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_mt_2018.root")["ntuple"]
+treeGG_tt = uproot3.open("/vols/cms/fjo18/Masters2021/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
+treeGG_mt = uproot3.open("/vols/cms/fjo18/Masters2021/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_mt_2018.root")["ntuple"]
+treeVBF_tt = uproot3.open("/vols/cms/fjo18/Masters2021/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
+treeVBF_mt = uproot3.open("/vols/cms/fjo18/Masters2021/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_mt_2018.root")["ntuple"]
 
 #~~ Variables to use ~~#
 # Need mass of rho and pi0
