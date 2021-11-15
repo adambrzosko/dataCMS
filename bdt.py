@@ -206,9 +206,9 @@ def ang_var(dataframe, momvariablenames_1, momvariablenames_2): #same for gammas
     return diffphi, diffeta, diffr, diffphi/Esum, diffeta/Esum, diffr/Esum
 
 df_ordered["delR_gam"],df_ordered["delPhi_gam"],df_ordered["delEta_gam"],df_ordered["delR_xE_gam"],df_ordered["delPhi_xE_gam"],\
-df_ordered["delEta_xE_gam"] = ang_var(df_1, gam1_2_4mom, gam2_2_4mom)
+df_ordered["delEta_xE_gam"] = ang_var(df_ordered, gam1_2_4mom, gam2_2_4mom)
 df_ordered["delR_pi"],df_ordered["delPhi_pi"],df_ordered["delEta_pi"],df_ordered["delR_xE_pi"],df_ordered["delPhi_xE_pi"],\
-df_ordered["delEta_xE_pi"] = ang_var(df_1, pi0_2_4mom, pi_2_4mom)
+df_ordered["delEta_xE_pi"] = ang_var(df_ordered, pi0_2_4mom, pi_2_4mom)
 
 
 def R2(dataframe, variables, number):
