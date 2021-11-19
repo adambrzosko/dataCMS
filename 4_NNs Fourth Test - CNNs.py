@@ -342,7 +342,7 @@ def tau_eta(dataframe, momvariablenames_1):
     
 tau_eta(df_ordered, tau_2_4mom)
 
-def ang_var(dataframe, momvariablenames_1, momvariablenames_2, particlename): #same for gammas and pions
+def ang_var(dataframe, momvariablenames_1, momvariablenames_2): #same for gammas and pions
     momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],                       py = dataframe[momvariablenames_1[2]],                       pz = dataframe[momvariablenames_1[3]],                       E = dataframe[momvariablenames_1[0]])
     momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],                       py = dataframe[momvariablenames_2[2]],                       pz = dataframe[momvariablenames_2[3]],                       E = dataframe[momvariablenames_2[0]])
     
