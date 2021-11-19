@@ -1,26 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
-#~~ Applying NN to variables used in BDT ~~#
-# Change from Sequential() model to Functional API, as is much more versatile
-
-
-# In[4]:
-
 
 # !pip install --user uproot
 # !pip install --user vector
 # !pip install --user awkward --upgrade
-get_ipython().system('pip install --user tensorflow')
+# get_ipython().system('pip install --user tensorflow')
 # import sys
 # sys.path.append("/eos/home-m/fosmanse/.local/lib/python2.7/site-packages")
-
-
-# In[5]:
-
 
 import uproot3
 import numpy as np
@@ -30,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, roc_curve, roc_auc_score
 import xgboost as xgb
 import matplotlib as mpl
-#mpl.use('Agg')
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 #~~ Neural Net Stuff ~~#
 from tensorflow import keras
@@ -58,9 +45,6 @@ import numba as nb
 #from ROOT import Math, TLorentzVector, TFile
 
 
-# In[6]:
-
-
 #~~ Extracting data from root files ~~#
 
 treeGG_tt = uproot3.open("/eos/user/d/dwinterb/SWAN_projects/Masters2021/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
@@ -74,10 +58,6 @@ treeVBF_tt = uproot3.open("/eos/user/d/dwinterb/SWAN_projects/Masters2021/MVAFIL
 #treeVBF_mt = uproot3.open("/eos/user/d/dwinterb/SWAN_projects/Masters2021/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_mt_2018.root")["ntuple"]
 #treeVBF_et = uproot3.open("/eos/user/d/dwinterb/SWAN_projects/Masters2021/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_et_2018.root")["ntuple"]
 # Vice versa for the VBF modes
-
-
-# In[5]:
-
 
 #~~ Variables to use ~~#
 # Need mass of rho and pi0
@@ -174,10 +154,6 @@ def energyfinder(dataframe, momvariablenames_1):
 # This function generates the energy of the gammas (magnitude of 3-mom) 
 # So that they can be treated the same as the other four-momenta later
 
-
-# In[6]:
-
-
 dfVBF_tt_1 = treeVBF_tt.pandas.df(variables_tt_1)
 dfGG_tt_1 = treeGG_tt.pandas.df(variables_tt_1)
 dfVBF_tt_2 = treeVBF_tt.pandas.df(variables_tt_2)
@@ -189,9 +165,6 @@ df_2 = pd.concat([dfVBF_tt_2,dfGG_tt_2], ignore_index=True)
 del dfVBF_tt_1, dfVBF_tt_2, dfGG_tt_2
 
 
-# In[7]:
-
-
 #~~ Separating the tt data into two separate datapoints ~~#
 
 df_1.set_axis(variables_tt_2, axis=1, inplace=True) 
@@ -201,14 +174,8 @@ del df_1, df_2
 
 # rename the axes for the _1 data, so that can concatenate into one tau per row
 
-
-# In[8]:
-
-
 df_full = df_full.head(100000)
 
-
-# In[9]:
 
 
 #~~ Filter decay modes and add in order ~~#
@@ -256,9 +223,6 @@ d_DMminus1 = pd.DataFrame({'col': 5 * np.ones(lenDMminus1)})
 y = pd.concat([d_DM0, d_DM1, d_DM2, d_DM10, d_DM11, d_DMminus1], ignore_index = True)
 
 del d_DM0, d_DM1, d_DM2, d_DM10, d_DM11, d_DMminus1
-
-
-# In[36]:
 
 
 #~~ define sets of variables necessary ~~#
@@ -340,9 +304,6 @@ def largegrid(dataframe,fourmomentum_cols, dimension_l, dimension_s):
     return largegridlist, smallgridlist
 
 
-# In[37]:
-
-
 def inv_mass(Energ,Px,Py,Pz):
     vect = vector.obj(px=Px, py=Py, pz=Pz, E=Energ)
     return vect.mass
@@ -362,6 +323,19 @@ df_ordered["E_gam/E_tau"] = df_ordered["gam1_E_2"].divide(df_ordered["tau_E_2"])
 df_ordered["E_pi/E_tau"] = df_ordered["pi_E_2"].divide(df_ordered["tau_E_2"]) #Epi/Etau
 df_ordered["E_pi0/E_tau"] = df_ordered["pi0_E_2"].divide(df_ordered["tau_E_2"]) #Epi0/Etau
 
+
+def pi0_mass(dataframe, momvariablenames_1, momvariablenames_2):
+    momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],\
+                       py = dataframe[momvariablenames_1[2]],\
+                       pz = dataframe[momvariablenames_1[3]],\
+                       E = dataframe[momvariablenames_1[0]])
+    momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
+                       py = dataframe[momvariablenames_2[2]],\
+                       pz = dataframe[momvariablenames_2[3]],\
+                       E = dataframe[momvariablenames_2[0]])
+    pi0_vect = momvect1+momvect2
+    dataframe["Mpi0"] = inv_mass(pi0_vect.E, pi0_vect.px, pi0_vect.py, pi0_vect.pz) #rho masses
+    
 def tau_eta(dataframe, momvariablenames_1):
     momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],                       py = dataframe[momvariablenames_1[2]],                       pz = dataframe[momvariablenames_1[3]],                       E = dataframe[momvariablenames_1[0]])
     dataframe["tau_eta"] = momvect1.eta  #tau eta (tau pt just a variable)
@@ -376,15 +350,23 @@ def ang_var(dataframe, momvariablenames_1, momvariablenames_2, particlename): #s
     diffeta = momvect1.eta - momvect2.eta
     diffr = np.sqrt(diffphi**2 + diffeta**2)
     Esum = dataframe[momvariablenames_1[0]] + dataframe[momvariablenames_2[0]]
-    dataframe["delR_"+ particlename] = diffr
-    dataframe["delPhi_"+ particlename] = diffphi
-    dataframe["delEta_" + particlename] = diffeta
-    dataframe["delR_xE_"+ particlename] = diffr * Esum
-    dataframe["delPhi_xE_"+ particlename] = diffphi * Esum
-    dataframe["delEta_xE_" + particlename] = diffeta * Esum
-        
-ang_var(df_ordered, gam1_2_4mom, gam2_2_4mom, "gam")
-ang_var(df_ordered, pi0_2_4mom, pi_2_4mom, "pi")
+    return diffphi, diffeta, diffr, diffphi/Esum, diffeta/Esum, diffr/Esum
+
+df_ordered["delR_gam"],df_ordered["delPhi_gam"],df_ordered["delEta_gam"],df_ordered["delR_xE_gam"],df_ordered["delPhi_xE_gam"],\
+df_ordered["delEta_xE_gam"] = ang_var(df_ordered, gam1_2_4mom, gam2_2_4mom)
+df_ordered["delR_pi"],df_ordered["delPhi_pi"],df_ordered["delEta_pi"],df_ordered["delR_xE_pi"],df_ordered["delPhi_xE_pi"],\
+df_ordered["delEta_xE_pi"] = ang_var(df_ordered, pi0_2_4mom, pi_2_4mom)
+
+
+def R2(dataframe, variables, number):
+    a = []
+    tau = [tau_1_4mom,tau_2_4mom]
+    for i in variables:
+        a.append((ang_var(dataframe,tau[number-1],i)[2]**2)*(dataframe["pt_"+str(number)]**2))
+    return sum(a)/sum(dataframe["pt_"+str(number)]**2)    
+
+df_ordered["R2"] = R2(df_ordered, [pi_2_4mom, pi0_2_4mom, gam1_2_4mom, gam2_2_4mom], 2)
+
 
 print("Generating image arrays...")
 image_l, image_s  = largegrid(df_ordered, fourmom_list_colnames, 21, 11)
@@ -418,9 +400,6 @@ image_l, image_s  = largegrid(df_ordered, fourmom_list_colnames, 21, 11)
 # gammas_dR_tau: E^vis_τ × ∆R(γ/e_lead, γ/e_sublead )
 
 
-# In[35]:
-
-
 phimax = 0
 etamax = 0
 for index, row in df_ordered.iterrows():
@@ -429,9 +408,6 @@ for index, row in df_ordered.iterrows():
     if max(np.array(row["etas"])) > etamax:
         etamax = max(np.array(row["etas"]))
 print(phimax, etamax)
-
-
-# In[38]:
 
 
 del df_ordered
@@ -462,9 +438,6 @@ del df_ordered
 # del df_ordered
 
 
-# In[39]:
-
-
 #~~ Split train and test data ~~#
 #X = normalize(X)#.to_numpy() # convert both to numpy arrays first because this works
 image_l = normalize(image_l)
@@ -480,16 +453,11 @@ im_l_train, im_l_test, im_s_train, im_s_test, y1_train, y1_test  = train_test_sp
 )
 
 
-# In[40]:
-
 
 y1_train_labels = y1_train.copy()
 y1_test_labels = y1_test.copy()
 y1_train = keras.utils.to_categorical(y1_train, 6)
 y1_test = keras.utils.to_categorical(y1_test, 6)
-
-
-# In[41]:
 
 
 # X1_train = pd.DataFrame(data = X1_train)
@@ -500,9 +468,6 @@ y1_test = keras.utils.to_categorical(y1_test, 6)
 # im_s_test = pd.DataFrame(data = im_s_test)
 # image lists can't be made into dataframes in this way - may need to look into this
 y1_train = pd.DataFrame(data = y1_train)
-
-
-# In[73]:
 
 
 def CNN_creator(inputshape, convlayers, denselayers, kernelsize = (3,3), learningrate = 0.001):
@@ -571,15 +536,9 @@ def CNN_creator_2input(inputshape_1,inputshape_2, convlayers, denselayers, kerne
     return model
 
 
-# In[74]:
-
-
 model = CNN_creator_2input((21,21,1), (11,11,1), 2,1)
 
 early_stop = EarlyStopping(monitor = 'val_loss', patience = 20)
-
-
-# In[75]:
 
 
 # save history so we can compute loss vs number of epochs
@@ -592,8 +551,6 @@ model.fit(
           callbacks=[history, early_stop],
           validation_data = ([im_l_test, im_s_test], y1_test)) 
 
-
-# In[76]:
 
 
 # Extract number of run epochs from the training history
@@ -617,8 +574,6 @@ ax[1].set_xlabel("Epochs"), ax[1].set_ylabel("accuracy")
 ax[1].legend();
 
 
-# In[78]:
-
 
 #~~ Applying the models to data ~~#
 prediction = model.predict([im_l_test,im_s_test])
@@ -627,9 +582,6 @@ y1_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
 flatpred = np.argmax(y1_pred, axis=-1)
 flattest = np.argmax(y1_test, axis=-1)
 print(accuracy_score(y1_test, y1_pred), " Convolutional Model")
-
-
-# In[79]:
 
 
 #~~ Creating confusion arrays ~~#
@@ -645,9 +597,6 @@ truelabelefficiency = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0
 for a in range(6):
     for b in range(6):
         truelabelefficiency[a][b] = truelabels[a][b]/lengthstrue[a]
-
-
-# In[68]:
 
 
 #~~ PLOTTING CONFUSION MATRICES ~~#
@@ -697,36 +646,12 @@ ax[1].set_ylabel('True Mode')
 
 
 plt.savefig('ConfmatrixNN4_batch2000_CNN_49epoch.png', dpi = 100)
-'''
-'0' - tau ->pi
-
-'1' - tau ->rho = pi + pi0
-
-'2' - tau ->a1 (1pr) = pi + 2pi0
-
-'3' - tau ->a1 (3pr) or other mode
-'''
-
-
-# In[69]:
 
 
 model.save('./testmodel_CNN_batch2000_2x1_smallimages_46epoch_l+s')
 
-
-# In[75]:
-
-
 doublecheckmodel = keras.models.load_model('./testmodel2')
-
-
-# In[76]:
-
-
 doublecheckmodel
-
-
-# In[ ]:
 
 
 
